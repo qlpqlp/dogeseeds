@@ -45,3 +45,15 @@ function saveLocationImage(array $file): ?string
 
     return 'uploads/locations/' . $filename;
 }
+
+function deleteLocationImage(?string $path): void
+{
+    if (!$path || !str_starts_with($path, 'uploads/locations/')) {
+        return;
+    }
+
+    $full = ROOT_PATH . '/' . $path;
+    if (is_file($full)) {
+        @unlink($full);
+    }
+}

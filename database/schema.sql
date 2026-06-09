@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `role` ENUM('user','business','volunteer','ngo','admin') DEFAULT 'user',
   `language` VARCHAR(5) DEFAULT 'en',
   `verified` TINYINT(1) DEFAULT 0,
+  `blocked` TINYINT(1) DEFAULT 0,
   `verification_token` VARCHAR(64) NULL,
   `password_reset_token` VARCHAR(64) NULL,
   `password_reset_expires` DATETIME NULL,

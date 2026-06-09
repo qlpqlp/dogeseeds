@@ -32,7 +32,7 @@
 
 The live project runs at **[https://dogeseeds.org](https://dogeseeds.org)**.
 
-- **Find help** — browse the map or list view, filter by category, use “Near me”
+- **Find help** — browse the map or list view, filter by category (with counts), search the list, use “Near me”
 - **Share surplus** — register, add your place on the map, set pickup windows
 - **Connect** — public inquiry form on listings; shareable friendly URLs for social media
 - **Support the project** — optional Dogecoin donations for hosting and verified distribution (not personal profit)
@@ -45,10 +45,10 @@ The live project runs at **[https://dogeseeds.org](https://dogeseeds.org)**.
 Visitor / neighbour          Registered user / org              Admin
         │                              │                            │
         ▼                              ▼                            ▼
-   Open map at              Create account → onboarding          wow/ panel
-   dogeseeds.org            wizard → add listing                 site settings,
-        │                    (org type, offers/needs,             SMTP, DOGE wallet,
-        ▼                     location, photo)                   languages
+   Open map at              Create account → onboarding          admin/ panel
+   dogeseeds.org            wizard → add listing                 settings, listings,
+        │                    (org type, offers/needs,             users, SMTP, wallet
+        ▼                     location, photo)
    Filter by category
    or tap a marker
         │
@@ -114,7 +114,7 @@ Full step-by-step guide: **[INSTALL.md](INSTALL.md)**
 3. **Ensure** `config/` is writable (`chmod 755`).
 4. **Visit** `https://yourdomain.com/install/` and complete the wizard.
 5. **Delete** or block the `install/` folder when finished.
-6. In **admin** (`/wow/`), set **Site URL** to your public URL (e.g. `https://dogeseeds.org`).
+6. In **admin** (`/admin/`), set **Site URL** to your public URL (e.g. `https://dogeseeds.org`).
 
 ### Optional sample data
 
@@ -122,13 +122,15 @@ After install, you can optionally populate the map with worldwide sample NGOs, s
 
 **phpMyAdmin** → select your database → **Import** → `database/seed-global-orgs.sql`
 
+Additional aid organisations (food banks, clothing, toys): import `database/seed-aid-orgs.sql` and upload the `uploads/seed/` folder to your server so listing photos appear on the map.
+
 This is optional. Skip it if you prefer an empty map and will add real listings yourself.
 
 ### Upgrading an existing site only
 
 The `database/migrate-v*.sql` files are **only for sites that were installed before a schema change**. If you are setting up DogeSeeds for the first time, ignore them.
 
-If you upgraded from an older deployment, run any missing migration files in order in phpMyAdmin: `migrate-v2.sql` through `migrate-v10.sql`.
+If you upgraded from an older deployment, run any missing migration files in order in phpMyAdmin (e.g. `migrate-v11.sql` for the `users.blocked` column). Older deployments may also need `migrate-v2.sql` through `migrate-v10.sql` if those were never applied.
 
 ---
 
@@ -151,8 +153,10 @@ If you upgraded from an older deployment, run any missing migration files in ord
 ### As an admin
 
 1. Log in with an admin account.
-2. Open **`/wow/`** (admin panel).
-3. Configure site name, URL, default language, map defaults, Dogecoin wallet, SMTP, and transparency note.
+2. Open **`/admin/`** (admin panel).
+3. **Settings** — site name, URL, default language, map defaults, Dogecoin wallet, SMTP, transparency note.
+4. **Listings** — search, edit any listing (same fields as the main site), hide/show, remove, manage photos.
+5. **Users** — view registrations, edit accounts, block or delete users (and their listings).
 
 ---
 
@@ -169,21 +173,22 @@ dogeseeds/
 │   ├── auth.php
 │   ├── my-listings.php
 │   ├── listing-inquiry.php
-│   └── admin/
+│   └── admin/             # settings.php, users.php, test-email.php
+├── admin/                 # Admin panel UI (settings, listings, users)
 ├── assets/
 │   ├── css/style.css
 │   ├── js/app.js
+│   ├── js/admin.js
 │   └── img/               # Logo, card, Dogecoin Foundation mark
 ├── config/                # config.php (created by installer)
 ├── database/
-│   ├── schema.sql         # Fresh install (used by wizard)
-│   ├── migrate-v*.sql     # Existing sites only — not for new installs
+│   ├── schema.sql         # Fresh install (used by wizard; includes full current schema)
+│   ├── migrate-v*.sql     # Existing sites only — e.g. migrate-v11.sql
 │   └── seed-global-orgs.sql  # Optional sample map data
 ├── includes/              # PHP core (Auth, I18n, Mailer, helpers)
 ├── install/               # Web install wizard
 ├── lang/                  # Translation JSON files
 ├── uploads/locations/     # Listing photos (created on upload)
-├── wow/                   # Admin panel
 ├── reset.php              # Password reset page
 └── verify.php             # Email verification
 ```

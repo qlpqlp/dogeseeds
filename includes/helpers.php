@@ -31,6 +31,21 @@ function ensureEnglishDefaultLanguage(): void
     }
 }
 
+function ensureUserBlockedColumn(): void
+{
+    try {
+        if (!isInstalled()) {
+            return;
+        }
+        $col = Database::fetch("SHOW COLUMNS FROM users LIKE 'blocked'");
+        if (!$col) {
+            Database::query('ALTER TABLE users ADD COLUMN `blocked` TINYINT(1) DEFAULT 0 AFTER `verified`');
+        }
+    } catch (Throwable) {
+        // Database may not be ready during install
+    }
+}
+
 function setSetting(string $key, string $value): void
 {
     Database::query(
@@ -106,6 +121,30 @@ function orgTypeColor(string $type): string
 function validCategories(): array
 {
     return ['food', 'clothing', 'toys', 'essentials'];
+}
+
+function countryCodeFromName(?string $name): string
+{
+    if (!$name) {
+        return '';
+    }
+
+    $countries = require ROOT_PATH . '/includes/countries.php';
+    foreach ($countries as $code => $label) {
+        if ($label === $name) {
+            return $code;
+        }
+    }
+
+    return '';
+}
+
+function validOrgTypes(): array
+{
+    return [
+        'person', 'donor', 'farmer', 'fisherman', 'supermarket', 'grocery',
+        'restaurant', 'cafe', 'ngo', 'scout', 'volunteer', 'other',
+    ];
 }
 
 function parseCategories(?array $input): array

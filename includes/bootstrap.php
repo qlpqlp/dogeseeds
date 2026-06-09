@@ -33,5 +33,6 @@ require_once ROOT_PATH . '/includes/Mailer.php';
 require_once ROOT_PATH . '/includes/EmailTemplates.php';
 
 Database::init($config['db']);
+ensureUserBlockedColumn();
 ensureEnglishDefaultLanguage();
 Auth::init($config);

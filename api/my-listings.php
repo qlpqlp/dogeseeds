@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once ROOT_PATH . '/includes/upload.php';
+
 $user = Auth::requireAuth();
 
 function myListingRow(int $locationId, int $userId, bool $isAdmin): ?array
@@ -39,6 +41,7 @@ function formatMyListing(array $row): array
     $row['needs'] = json_decode($row['needs_categories'] ?? '[]', true) ?: [];
     $row['donations'] = myListingDonations((int) $row['location_id']);
     $row['image_url'] = publicPath($row['image_path'] ?? null);
+    $row['country_code'] = countryCodeFromName($row['country'] ?? null);
     unset($row['offers_categories'], $row['needs_categories'], $row['image_path']);
     return $row;
 }
@@ -48,16 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $sql = "SELECT l.id AS location_id, l.name AS location_name, l.latitude, l.longitude,
                    l.address, l.city, l.country, l.instructions, l.image_path, l.active,
                    l.created_at AS location_created_at,
-                   o.id AS org_id, o.user_id, o.name AS org_name, o.type AS org_type,
+                   o.id AS org_id, o.user_id, u.email AS owner_email, u.name AS owner_name,
+                   o.name AS org_name, o.type AS org_type,
                    o.description AS org_description, o.offers_categories, o.needs_categories,
                    o.contact_email, o.contact_phone, o.show_contact_public, o.website
             FROM locations l
-            JOIN organizations o ON o.id = l.organization_id";
+            JOIN organizations o ON o.id = l.organization_id
+            JOIN users u ON u.id = o.user_id";
     $params = [];
 
     if (!$isAdmin) {
         $sql .= ' WHERE o.user_id = ?';
         $params[] = $user['id'];
+    } else {
+        $q = trim($_GET['q'] ?? '');
+        if ($q !== '') {
+            $sql .= ' WHERE (o.name LIKE ? OR l.name LIKE ? OR l.city LIKE ? OR u.email LIKE ? OR u.name LIKE ?)';
+            $like = '%' . $q . '%';
+            $params = array_fill(0, 5, $like);
+        }
     }
 
     $sql .= ' ORDER BY l.created_at DESC';
@@ -113,6 +125,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         } else {
             $locUpdates['country'] = null;
         }
+    }
+
+    if ($isAdmin && array_key_exists('active', $body)) {
+        $locUpdates['active'] = !empty($body['active']) ? 1 : 0;
+    }
+
+    if ($isAdmin && array_key_exists('org_name', $body)) {
+        $orgName = trim((string) $body['org_name']);
+        if ($orgName !== '') {
+            Database::update('organizations', ['name' => $orgName], 'id = ?', [(int) $listing['org_id']]);
+        }
+    }
+
+    if (array_key_exists('type', $body)) {
+        $type = (string) $body['type'];
+        if (in_array($type, validOrgTypes(), true)) {
+            $orgUpdates['type'] = $type;
+        }
+    }
+
+    if (!empty($body['offers_sent'])) {
+        $offersRaw = $body['offers'] ?? [];
+        if (!is_array($offersRaw)) {
+            $offersRaw = $offersRaw !== '' && $offersRaw !== null ? [$offersRaw] : [];
+        }
+        $offers = parseCategories($offersRaw);
+        $orgUpdates['offers_categories'] = $offers ? json_encode($offers) : null;
+    }
+
+    if (!empty($body['needs_sent'])) {
+        $needsRaw = $body['needs'] ?? [];
+        if (!is_array($needsRaw)) {
+            $needsRaw = $needsRaw !== '' && $needsRaw !== null ? [$needsRaw] : [];
+        }
+        $needs = parseCategories($needsRaw);
+        $orgUpdates['needs_categories'] = $needs ? json_encode($needs) : null;
+    }
+
+    if (array_key_exists('latitude', $body) && array_key_exists('longitude', $body)) {
+        $lat = (float) $body['latitude'];
+        $lng = (float) $body['longitude'];
+        if ($lat >= -90 && $lat <= 90 && $lng >= -180 && $lng <= 180) {
+            $locUpdates['latitude'] = $lat;
+            $locUpdates['longitude'] = $lng;
+        }
+    }
+
+    if (!empty($_FILES['image'])) {
+        $newPath = saveLocationImage($_FILES['image']);
+        if ($newPath) {
+            deleteLocationImage($listing['image_path'] ?? null);
+            $locUpdates['image_path'] = $newPath;
+        }
+    } elseif (!empty($body['remove_image'])) {
+        deleteLocationImage($listing['image_path'] ?? null);
+        $locUpdates['image_path'] = null;
     }
 
     $pickupStart = null;

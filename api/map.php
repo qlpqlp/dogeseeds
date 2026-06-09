@@ -56,13 +56,12 @@ $sql .= ' GROUP BY l.id, l.name, l.slug, l.latitude, l.longitude, l.address, l.c
 
 $locations = Database::fetchAll($sql, $params);
 
-if ($category) {
-    $locations = array_filter($locations, function ($loc) use ($category) {
-        $offers = json_decode($loc['offers_categories'] ?? '[]', true) ?: [];
-        $needs = json_decode($loc['needs_categories'] ?? '[]', true) ?: [];
-        $hasDonation = (int) $loc['donation_count'] > 0;
-        return $hasDonation || in_array($category, $offers, true) || in_array($category, $needs, true);
-    });
+function mapLocationMatchesCategory(array $loc, string $category): bool
+{
+    $offers = json_decode($loc['offers_categories'] ?? '[]', true) ?: [];
+    $needs = json_decode($loc['needs_categories'] ?? '[]', true) ?: [];
+    $hasDonation = (int) $loc['donation_count'] > 0;
+    return $hasDonation || in_array($category, $offers, true) || in_array($category, $needs, true);
 }
 
 if ($lat !== null && $lng !== null) {
@@ -72,6 +71,18 @@ if ($lat !== null && $lng !== null) {
         return $dist <= $radius;
     });
     usort($locations, fn($a, $b) => ($a['distance_km'] ?? 0) <=> ($b['distance_km'] ?? 0));
+}
+
+$categoryCounts = ['all' => count($locations)];
+foreach (validCategories() as $cat) {
+    $categoryCounts[$cat] = count(array_filter(
+        $locations,
+        fn($loc) => mapLocationMatchesCategory($loc, $cat)
+    ));
+}
+
+if ($category) {
+    $locations = array_filter($locations, fn($loc) => mapLocationMatchesCategory($loc, $category));
 }
 
 foreach ($locations as &$loc) {
@@ -95,7 +106,10 @@ foreach ($locations as &$loc) {
     unset($loc['offers_categories'], $loc['needs_categories'], $loc['show_contact_public'], $loc['image_path']);
 }
 
-jsonResponse(['locations' => array_values($locations)]);
+jsonResponse([
+    'locations' => array_values($locations),
+    'category_counts' => $categoryCounts,
+]);
 
 function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float
 {

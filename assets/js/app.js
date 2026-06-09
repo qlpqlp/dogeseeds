@@ -14,6 +14,8 @@
     let pickMarker = null;
     let pickGeocoder = null;
     let currentCategory = '';
+    let listSearchQuery = '';
+    let listSearchTimer = null;
     let userLocation = null;
     let locations = [];
     let activePanel = null;
@@ -600,6 +602,14 @@
         getUserLocation(true).then(() => loadMapData()).finally(() => btn?.classList.remove('loading'));
     });
 
+    document.getElementById('listSearch')?.addEventListener('input', (e) => {
+        listSearchQuery = e.target.value;
+        clearTimeout(listSearchTimer);
+        listSearchTimer = setTimeout(() => {
+            if (activePanel === 'list') renderList();
+        }, 200);
+    });
+
     function getUserLocation(centerMap = false) {
         return new Promise((resolve) => {
             if (!navigator.geolocation) { resolve(null); return; }
@@ -852,6 +862,7 @@
 
             const [data] = await Promise.all(requests);
             locations = data.locations || [];
+            updateFilterCounts(data.category_counts || {});
             renderMarkers();
 
             if (isInitialLoad) {
@@ -1238,18 +1249,55 @@
     };
 
     // ── List ──
+    function updateFilterCounts(counts) {
+        document.querySelectorAll('.filter-count').forEach(el => {
+            const key = el.dataset.countFor || '';
+            const n = counts[key] ?? 0;
+            el.textContent = String(n);
+            el.classList.toggle('is-zero', n === 0);
+        });
+    }
+
+    function locationMatchesSearch(loc, query) {
+        if (!query) return true;
+        const q = query.toLowerCase();
+        const fields = [
+            loc.org_name,
+            loc.location_name,
+            loc.city,
+            loc.address,
+            loc.country,
+            loc.instructions,
+            loc.org_description,
+        ];
+        if (fields.some(v => v && String(v).toLowerCase().includes(q))) return true;
+        const cats = [...(loc.offers || []), ...(loc.needs || [])];
+        if (cats.some(c => (S['filter_' + c] || c).toLowerCase().includes(q) || c.includes(q))) return true;
+        return (loc.donations || []).some(d =>
+            [d.title, d.description, d.category, S['filter_' + d.category]]
+                .filter(Boolean)
+                .some(v => String(v).toLowerCase().includes(q))
+        );
+    }
+
+    function getFilteredListLocations() {
+        if (!listSearchQuery.trim()) return locations;
+        return locations.filter(loc => locationMatchesSearch(loc, listSearchQuery.trim()));
+    }
+
     function renderList() {
         const container = document.getElementById('donationList');
+        const filtered = getFilteredListLocations();
 
-        if (!locations.length) {
+        if (!filtered.length) {
             container.innerHTML = `<div class="empty-state">
                 <span class="material-icons">inventory_2</span>
-                <p>${esc(S.map_no_results)}</p>
+                <p>${esc(listSearchQuery.trim() ? (S.list_search_no_results || S.map_no_results) : S.map_no_results)}</p>
             </div>`;
             return;
         }
 
-        container.innerHTML = locations.map(loc => {
+        container.innerHTML = filtered.map(loc => {
             const donations = loc.donations || [];
             const title = donations.length ? donations[0].title : loc.org_name;
             const desc = donations.length ? donations[0].description : '';

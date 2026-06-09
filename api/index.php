@@ -52,6 +52,9 @@ $routes = [
     'POST:admin/settings' => 'api/admin/settings.php',
     'POST:admin/test-email' => 'api/admin/test-email.php',
     'POST:admin/test_email' => 'api/admin/test-email.php',
+    'GET:admin/users'     => 'api/admin/users.php',
+    'PUT:admin/users'     => 'api/admin/users.php',
+    'DELETE:admin/users'  => 'api/admin/users.php',
 ];
 
 $key = $method . ':' . $path;

@@ -323,22 +323,29 @@ if ($shareListing) {
 </div>
 
 <div class="filter-bar" id="filters">
-    <button type="button" class="filter-pill active" data-category=""><?= htmlspecialchars($t('filter_all')) ?></button>
+    <button type="button" class="filter-pill active" data-category="">
+        <?= htmlspecialchars($t('filter_all')) ?>
+        <span class="filter-count" data-count-for="all">0</span>
+    </button>
     <button type="button" class="filter-pill" data-category="food">
         <span class="material-icons">restaurant</span>
         <?= htmlspecialchars($t('filter_food')) ?>
+        <span class="filter-count" data-count-for="food">0</span>
     </button>
     <button type="button" class="filter-pill" data-category="clothing">
         <span class="material-icons">checkroom</span>
         <?= htmlspecialchars($t('filter_clothing')) ?>
+        <span class="filter-count" data-count-for="clothing">0</span>
     </button>
     <button type="button" class="filter-pill" data-category="toys">
         <span class="material-icons">toys</span>
         <?= htmlspecialchars($t('filter_toys')) ?>
+        <span class="filter-count" data-count-for="toys">0</span>
     </button>
     <button type="button" class="filter-pill" data-category="essentials">
         <span class="material-icons">medical_services</span>
         <?= htmlspecialchars($t('filter_essentials')) ?>
+        <span class="filter-count" data-count-for="essentials">0</span>
     </button>
     <button type="button" class="filter-pill filter-pill-nearby" id="btnNearby" aria-label="<?= htmlspecialchars($t('filter_nearby')) ?>">
         <span class="material-icons">my_location</span>
@@ -399,6 +406,10 @@ if ($shareListing) {
             </button>
         </header>
         <div class="sheet-body">
+            <div class="list-search-wrap">
+                <span class="material-icons list-search-icon" aria-hidden="true">search</span>
+                <input type="search" id="listSearch" class="list-search-input" placeholder="<?= htmlspecialchars($t('list_search_placeholder')) ?>" autocomplete="off" aria-label="<?= htmlspecialchars($t('list_search_placeholder')) ?>">
+            </div>
             <div class="list-container" id="donationList"></div>
         </div>
     </div>

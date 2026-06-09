@@ -16,6 +16,10 @@ class Auth
         }
         if (!empty($_SESSION['user_id'])) {
             self::$user = Database::fetch('SELECT * FROM users WHERE id = ?', [$_SESSION['user_id']]);
+            if (self::$user && !empty(self::$user['blocked'])) {
+                $_SESSION = [];
+                self::$user = null;
+            }
         }
     }
 
@@ -50,6 +54,9 @@ class Auth
     {
         $user = Database::fetch('SELECT * FROM users WHERE email = ?', [$email]);
         if (!$user || !password_verify($password, $user['password_hash'])) {
+            return null;
+        }
+        if (!empty($user['blocked'])) {
             return null;
         }
         $_SESSION['user_id'] = $user['id'];
