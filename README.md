@@ -1,16 +1,9 @@
 <p align="center">
   <img src="assets/img/DogeSeeds_card.png" alt="DogeSeeds" width="100%">
-  &nbsp;&nbsp;
-  <img src="assets/img/dogecoin-foundation.svg" alt="Dogecoin Foundation" width="160">
 </p>
 <p align="center">
   <a href="https://foundation.dogecoin.com">
-    <img
-      src="assets/img/dogecoin-foundation.svg"
-      alt="Dogecoin Foundation"
-      width="160"
-      style="background: rgba(255,255,255,0.3); padding: 8px; border-radius: 8px;"
-    >
+    <img src="assets/img/dogecoin-foundation.svg" alt="Dogecoin Foundation"  width="160" style="background: rgba(255,255,255,0.3); padding: 8px; border-radius: 8px;" >
   </a>
 </p>
 
