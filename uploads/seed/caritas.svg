@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#AD1457"/>
+  <text x="100" y="88" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="26" font-weight="bold">Caritas</text>
+  <path d="M70 108 Q100 135 130 108" fill="none" stroke="#F8BBD0" stroke-width="5" stroke-linecap="round"/>
+  <text x="100" y="168" text-anchor="middle" fill="#FCE4EC" font-family="Arial,sans-serif" font-size="10">Caritas Internationalis</text>
+</svg>

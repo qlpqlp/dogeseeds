@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#EF6C00"/>
+  <text x="100" y="78" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="20" font-weight="bold">BA</text>
+  <path d="M60 105 L100 130 L140 105" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <text x="100" y="168" text-anchor="middle" fill="#FFF3E0" font-family="Arial,sans-serif" font-size="10">Banques Alimentaires</text>
+</svg>

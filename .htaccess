@@ -1,0 +1,44 @@
+# DogeSeeds.org - Apache configuration for public_html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # API routing
+    RewriteRule ^api/([a-zA-Z0-9_/.-]+)$ api/index.php?route=$1 [QSA,L]
+
+    # Block access to sensitive directories
+    RewriteRule ^(config|database|includes)/ - [F,L]
+
+    # Pretty listing share URLs → index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-z0-9][a-z0-9-]*)/(giving|needing)/(food|clothing|toys|essentials)/?$ index.php?listing_slug=$1&listing_intent=$2&listing_category=$3 [L,QSA]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-z0-9][a-z0-9-]{2,})/?$ index.php?listing_slug=$1 [L,QSA]
+
+    # Block install folder after installation (uncomment for production)
+    # RewriteRule ^install/ - [F,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# PHP settings (if allowed by host)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+</IfModule>
+
+# Protect config files
+<FilesMatch "\.(sql|example\.php)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#283593"/>
+  <text x="100" y="78" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="28" font-weight="bold">VOA</text>
+  <text x="100" y="108" text-anchor="middle" fill="#C5CAE9" font-family="Arial,sans-serif" font-size="12">Volunteers</text>
+  <text x="100" y="168" text-anchor="middle" fill="#E8EAF6" font-family="Arial,sans-serif" font-size="10">Volunteers of America</text>
+</svg>

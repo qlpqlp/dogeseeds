@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#512DA8"/>
+  <path d="M100 50 L122 112 L100 96 L78 112 Z" fill="#CE93D8" stroke="#311B92" stroke-width="2"/>
+  <text x="100" y="92" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="18" font-weight="bold">UK</text>
+  <text x="100" y="168" text-anchor="middle" fill="#EDE7F6" font-family="Arial,sans-serif" font-size="12" font-weight="bold">Scouts UK</text>
+</svg>
